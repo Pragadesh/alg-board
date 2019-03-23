@@ -29,7 +29,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     // add the item
     public void enqueue(Item item) {
         if (item == null) {
-            throw new NoSuchElementException();
+            throw new IllegalArgumentException();
         }
         checkArrayCapacity();
         items[size++] = item;

@@ -11,6 +11,9 @@ public class Permutation {
             throw new IllegalArgumentException();
         }
         int k = Integer.parseInt(args[0]);
+        if(k <= 0) {
+            throw new IllegalArgumentException("argument must be positive");
+        }
         RandomizedQueue<String> rdmQueue = new RandomizedQueue<>();
 
         int count = 0;

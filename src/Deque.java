@@ -29,7 +29,7 @@ public class Deque<Item> implements Iterable<Item> {
     // add the item to the front
     public void addFirst(Item item) {
         if (item == null) {
-            throw new NoSuchElementException();
+            throw new IllegalArgumentException();
         }
         checkArrayCapacity();
         if (first == 0) {
@@ -41,7 +41,7 @@ public class Deque<Item> implements Iterable<Item> {
     // add the item to the end
     public void addLast(Item item) {
         if (item == null) {
-            throw new NoSuchElementException();
+            throw new IllegalArgumentException();
         }
         checkArrayCapacity();
         items[last] = item;
