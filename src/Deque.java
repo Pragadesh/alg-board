@@ -1,14 +1,17 @@
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import edu.princeton.cs.algs4.StdOut;
+
 public class Deque<T> implements Iterable<T>{
 
-	int capacity = 5;
-	T[] items;
+	private int capacity = 5;
+	private T[] items;
 	
-	int first;
-	int last;
+	private int first;
+	private int last;
 	
+	private static final String LINE_SEPARATOR = "line.separator";
 	
 	// construct an empty deque
 	@SuppressWarnings("unchecked")
@@ -111,25 +114,25 @@ public class Deque<T> implements Iterable<T>{
 		for(int i=0; i<items.length; i++) {
 			builder.append(items[i]).append("\t");
 		}
-		builder.append(System.getProperty("line.separator"));
+		builder.append(System.getProperty(LINE_SEPARATOR));
 		int numOfTabs = first;
 		while(numOfTabs-- > 0) {
 			builder.append("\t");
 		}
 		builder.append("\u2191");
-		builder.append(System.getProperty("line.separator"));
+		builder.append(System.getProperty(LINE_SEPARATOR));
 		numOfTabs = last;
 		while(numOfTabs-- > 0) {
 			builder.append("\t");
 		}
 		builder.append("\u21A1");
-		builder.append(System.getProperty("line.separator"));
-		System.out.println(builder.toString());
+		builder.append(System.getProperty(LINE_SEPARATOR));
+		StdOut.println(builder.toString());
 	}
 	
 	private class DequeItr implements Iterator<T>{
 
-		int start;
+		private int start;
 		
 		public DequeItr() {
 			this.start = first;
@@ -148,6 +151,11 @@ public class Deque<T> implements Iterable<T>{
 			T item = items[start++];
 			start = start % items.length;
 			return item;
+		}
+		
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
 		}
 	}
 	
