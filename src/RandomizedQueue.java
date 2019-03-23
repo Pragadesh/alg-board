@@ -12,7 +12,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 	private int size;
 
 	// construct an empty randomized queue
-	@SuppressWarnings("unchecked")
 	public RandomizedQueue() {
 		this.items = (Item[]) new Object[capacity];
 	}
@@ -67,7 +66,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 	}
 
 	private void modifyCapacity(int newCapacity) {
-		@SuppressWarnings("unchecked")
 		Item[] newItems = (Item[]) new Object[newCapacity];
 		for (int i = 0; i < size(); i++) {
 			newItems[i] = items[i];
@@ -90,7 +88,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
 	private class RandomizedQueueItr implements Iterator<Item> {
 
-		private int[] shuffledIndex;
+		private final int[] shuffledIndex;
 		private int currentIdx;
 
 		public RandomizedQueueItr() {
@@ -121,25 +119,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
 	}
 
-	private void printQueue() {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < items.length; i++) {
-			builder.append(items[i]).append("\t");
-		}
-		builder.append(System.getProperty("line.separator"));
-		int numOfTabs = size;
-		while (numOfTabs-- > 0) {
-			builder.append("\t");
-		}
-		builder.append("\u2191");
-		builder.append(System.getProperty("line.separator"));
-		StdOut.println(builder.toString());
-	}
-
 	// unit testing (optional)
 	public static void main(String[] args) {
 		RandomizedQueue<String> rdmQueue = new RandomizedQueue<>();
 		rdmQueue.enqueue("A");
-		rdmQueue.printQueue();
 	}
 }
