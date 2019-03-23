@@ -3,10 +3,10 @@ import java.util.NoSuchElementException;
 
 import edu.princeton.cs.algs4.StdOut;
 
-public class Deque<T> implements Iterable<T>{
+public class Deque<Item> implements Iterable<Item>{
 
 	private int capacity = 5;
-	private T[] items;
+	private Item[] items;
 	
 	private int first;
 	private int last;
@@ -16,7 +16,7 @@ public class Deque<T> implements Iterable<T>{
 	// construct an empty deque
 	@SuppressWarnings("unchecked")
 	public Deque() {
-		items = (T[]) new Object[capacity];
+		items = (Item[]) new Object[capacity];
 		first = 1; last = 1;
 	}
 	
@@ -31,7 +31,7 @@ public class Deque<T> implements Iterable<T>{
 	}
 
 	// add the item to the front
-	public void addFirst(T item) {
+	public void addFirst(Item item) {
 		if(item == null) {
 			throw new NoSuchElementException();
 		}
@@ -43,7 +43,7 @@ public class Deque<T> implements Iterable<T>{
 	}
 
 	// add the item to the end
-	public void addLast(T item) {
+	public void addLast(Item item) {
 		if(item == null) {
 			throw new NoSuchElementException();
 		}
@@ -53,11 +53,11 @@ public class Deque<T> implements Iterable<T>{
 	}
 
 	// remove and return the item from the front
-	public T removeFirst() {
+	public Item removeFirst() {
 		if(first == last) {
 			throw new NoSuchElementException();
 		}
-		T item = items[first];
+		Item item = items[first];
 		items[first++] = null;
 		first = first % items.length;
 		shrinkIfRequired();
@@ -65,19 +65,19 @@ public class Deque<T> implements Iterable<T>{
 	}
 
 	// remove and return the item from the end
-	public T removeLast() {
+	public Item removeLast() {
 		if(first == last) {
 			throw new NoSuchElementException();
 		}
 		last = (last + items.length - 1) % items.length;
-		T item = items[last];
+		Item item = items[last];
 		items[last] = null;
 		shrinkIfRequired();
 		return item;
 	}
 
 	// return an iterator over items in order from front to end
-	public Iterator<T> iterator() {
+	public Iterator<Item> iterator() {
 		return new DequeItr();
 	}
 	
@@ -87,7 +87,7 @@ public class Deque<T> implements Iterable<T>{
 	
 	private void modifyCapacity(int newCapacity) {
 		@SuppressWarnings("unchecked")
-		T[] newItems = (T[]) new Object[newCapacity];
+		Item[] newItems = (Item[]) new Object[newCapacity];
 		for(int i=0; i<size(); i++) {
 			newItems[i] = items[(first+i) % items.length];
 		}
@@ -130,7 +130,7 @@ public class Deque<T> implements Iterable<T>{
 		StdOut.println(builder.toString());
 	}
 	
-	private class DequeItr implements Iterator<T>{
+	private class DequeItr implements Iterator<Item>{
 
 		private int start;
 		
@@ -144,11 +144,11 @@ public class Deque<T> implements Iterable<T>{
 		}
 
 		@Override
-		public T next() {
+		public Item next() {
 			if(start == last) {
 				throw new NoSuchElementException();
 			}
-			T item = items[start++];
+			Item item = items[start++];
 			start = start % items.length;
 			return item;
 		}

@@ -4,17 +4,17 @@ import java.util.NoSuchElementException;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 
-public class RandomizedQueue<T> implements Iterable<T> {
+public class RandomizedQueue<Item> implements Iterable<Item> {
 
 	private int capacity = 5;
-	private T[] items;
+	private Item[] items;
 
 	private int size;
 
 	// construct an empty randomized queue
 	@SuppressWarnings("unchecked")
 	public RandomizedQueue() {
-		this.items = (T[]) new Object[capacity];
+		this.items = (Item[]) new Object[capacity];
 	}
 
 	// is the randomized queue empty?
@@ -28,7 +28,7 @@ public class RandomizedQueue<T> implements Iterable<T> {
 	}
 
 	// add the item
-	public void enqueue(T item) {
+	public void enqueue(Item item) {
 		if (item == null) {
 			throw new NoSuchElementException();
 		}
@@ -37,13 +37,13 @@ public class RandomizedQueue<T> implements Iterable<T> {
 	}
 
 	// remove and return a random item
-	public T dequeue() {
+	public Item dequeue() {
 		if (isEmpty()) {
 			throw new NoSuchElementException();
 		}
 		shrinkIfRequired();
 		int rdmIdx = StdRandom.uniform(size);
-		T item = items[rdmIdx];
+		Item item = items[rdmIdx];
 		if (rdmIdx != size - 1) {
 			items[rdmIdx] = items[size - 1];
 		}
@@ -52,7 +52,7 @@ public class RandomizedQueue<T> implements Iterable<T> {
 	}
 
 	// return a random item (but do not remove it)
-	public T sample() {
+	public Item sample() {
 		if (isEmpty()) {
 			throw new NoSuchElementException();
 		}
@@ -62,13 +62,13 @@ public class RandomizedQueue<T> implements Iterable<T> {
 
 	// return an independent iterator over items in random order
 	@Override
-	public Iterator<T> iterator() {
+	public Iterator<Item> iterator() {
 		return new RandomizedQueueItr();
 	}
 
 	private void modifyCapacity(int newCapacity) {
 		@SuppressWarnings("unchecked")
-		T[] newItems = (T[]) new Object[newCapacity];
+		Item[] newItems = (Item[]) new Object[newCapacity];
 		for (int i = 0; i < size(); i++) {
 			newItems[i] = items[i];
 		}
@@ -88,7 +88,7 @@ public class RandomizedQueue<T> implements Iterable<T> {
 		}
 	}
 
-	private class RandomizedQueueItr implements Iterator<T> {
+	private class RandomizedQueueItr implements Iterator<Item> {
 
 		private int[] shuffledIndex;
 		private int currentIdx;
@@ -107,7 +107,7 @@ public class RandomizedQueue<T> implements Iterable<T> {
 		}
 
 		@Override
-		public T next() {
+		public Item next() {
 			if (currentIdx >= shuffledIndex.length) {
 				throw new NoSuchElementException();
 			}
