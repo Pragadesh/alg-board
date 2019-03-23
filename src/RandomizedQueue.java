@@ -111,7 +111,7 @@ public class RandomizedQueue<T> implements Iterable<T> {
 			if (currentIdx >= shuffledIndex.length) {
 				throw new NoSuchElementException();
 			}
-			return items[currentIdx++];
+			return items[shuffledIndex[currentIdx++]];
 		}
 
 		@Override
