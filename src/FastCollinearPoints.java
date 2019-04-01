@@ -8,77 +8,75 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class FastCollinearPoints {
 
-    private List<LineSegment> lineSegments;
+    private final List<LineSegment> lineSegments;
 
     // finds all line segments containing 4 or more points
     public FastCollinearPoints(Point[] points) {
-        if (points == null || points.length < 4) {
+        lineSegments = new ArrayList<>();
+        if (points == null) {
             throw new IllegalArgumentException();
         }
-        lineSegments = new ArrayList<>();
-        findCollinearPoints(points);
+        Point[] pointsCopy = evaluateAndGetCopy(points);
+        if (points.length < 4) {
+            return;
+        }
+        findCollinearPoints(points, pointsCopy);
     }
 
-    private void findCollinearPoints(Point[] points) {
+    private Point[] evaluateAndGetCopy(Point[] points) {
+        Point[] pointsCopy = new Point[points.length];
+        for (int i = 0; i < points.length; i++) {
+            if (points[i] == null)
+                throw new IllegalArgumentException();
+            pointsCopy[i] = points[i];
+        }
+        Arrays.sort(pointsCopy);
+        if (pointsCopy.length > 1) {
+            Point prevPoint = pointsCopy[0];
+            for (int i = 1; i < pointsCopy.length; i++) {
+                if (prevPoint.compareTo(pointsCopy[i]) == 0) {
+                    throw new IllegalArgumentException();
+                }
+                prevPoint = pointsCopy[i];
+            }
+        }
+        return pointsCopy;
+    }
+
+    private void findCollinearPoints(Point[] points, Point[] pointsCopy) {
         int offsetLength = 1;
+        Arrays.sort(points);
         for (int i = 0; i < points.length - 3; i += offsetLength) {
             Point pivot = points[i];
-            PointScore[] scores = new PointScore[points.length - i - 1];
-            for (int j = i + 1; j < points.length; j++) {
-                scores[j - i - 1] = new PointScore(pivot.slopeTo(points[j]), j);
-            }
-            Arrays.sort(scores);
-            offsetLength = findMaxCollinearPoints(points, scores, i + 1);
-            if (offsetLength >= 3) {
-                offsetLength++;
-                Arrays.sort(points, i, i + offsetLength);
-                lineSegments.add(new LineSegment(points[i], points[i + offsetLength - 1]));
-            }
-        }
-    }
+            Arrays.sort(pointsCopy, pivot.slopeOrder());
 
-    private int findMaxCollinearPoints(Point[] points, PointScore[] sortedScores, int startIdx) {
-        int maxStartIdx = 0;
-        double currentScore = sortedScores[0].slope;
-        int maxLength = 1;
-        int currentStartIdx = 0;
-        for (int i = 1; i < sortedScores.length; i++) {
-            if (sortedScores[i].slope != currentScore) {
-                if (i - currentStartIdx > maxLength) {
-                    maxLength = (i - currentStartIdx);
-                    maxStartIdx = currentStartIdx;
+            double currentSlope = pivot.slopeTo(pointsCopy[0]);
+            int currentLength = 1;
+            for (int j = 1; j < pointsCopy.length; j++) {
+                double calculatedSlope = pivot.slopeTo(pointsCopy[j]);
+                if (Double.compare(calculatedSlope, currentSlope) == 0) {
+                    currentLength++;
+                } else {
+                    currentSlope = calculatedSlope;
+                    if (currentLength >= 3) {
+                        createLineSegment(pivot, pointsCopy, j - currentLength, j - 1);
+                    }
+                    currentLength = 1;
                 }
-                currentStartIdx = i;
-                currentScore = sortedScores[i].slope;
+            }
+            if (currentLength >= 3) {
+                createLineSegment(pivot, pointsCopy, pointsCopy.length - currentLength, pointsCopy.length - 1);
             }
         }
-        if (sortedScores.length - currentStartIdx > maxLength) {
-            maxLength = (sortedScores.length - currentStartIdx);
-            maxStartIdx = currentStartIdx;
-        }
-        if (maxLength >= 3) {
-            rearrangePoints(points, sortedScores, startIdx, maxStartIdx, maxLength);
-            return maxLength;
-        }
-        return 1;
     }
 
-    private void rearrangePoints(Point[] points, PointScore[] sortedScores, int startIdx, int matchedStartIdx, int length) {
-        int[] indexes = new int[length];
-        for (int i = 0; i < length; i++) {
-            indexes[i] = sortedScores[matchedStartIdx++].index;
-        }
-        Arrays.sort(indexes);
-        for (int index : indexes) {
-            exchangeIndex(points, startIdx++, index);
-        }
-    }
-
-    private void exchangeIndex(Point[] points, int idx1, int idx2) {
-        if (idx1 != idx2) {
-            Point temp = points[idx1];
-            points[idx1] = points[idx2];
-            points[idx2] = temp;
+    private void createLineSegment(Point pivot, Point[] points, int start, int end) {
+        Point[] segment = new Point[end - start + 2];
+        System.arraycopy(points, start, segment, 0, end - start + 1);
+        segment[segment.length - 1] = pivot;
+        Arrays.sort(segment);
+        if (pivot.compareTo(segment[0]) == 0) {
+            lineSegments.add(new LineSegment(segment[0], segment[segment.length - 1]));
         }
     }
 
@@ -91,32 +89,6 @@ public class FastCollinearPoints {
     public LineSegment[] segments() {
         LineSegment[] segments = new LineSegment[lineSegments.size()];
         return lineSegments.toArray(segments);
-    }
-
-    private static class PointScore implements Comparable<PointScore> {
-        private double slope;
-        private int index;
-        private static final String FMT = "[%d, %f]";
-
-        public PointScore(double slope, int index) {
-            this.slope = slope;
-            this.index = index;
-        }
-
-        @Override
-        public int compareTo(PointScore that) {
-            if (this.slope == that.slope) {
-                return 0;
-            } else if (this.slope > that.slope) {
-                return 1;
-            }
-            return -1;
-        }
-
-        @Override
-        public String toString() {
-            return String.format(FMT, index, slope);
-        }
     }
 
     public static void main(String[] args) {
