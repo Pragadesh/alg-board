@@ -42,7 +42,7 @@ public class Solver {
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
-        if(initial == null) {
+        if (initial == null) {
             throw new IllegalArgumentException();
         }
         this.initialBoard = initial;
@@ -99,7 +99,7 @@ public class Solver {
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        return goalNode == null ? 0 : goalNode.noOfMoves;
+        return isSolvable() ? goalNode.noOfMoves : -1;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
@@ -110,7 +110,10 @@ public class Solver {
             path.addFirst(currentNode.board);
             currentNode = currentNode.predecessor;
         }
-        return path.isEmpty()? null : path;
+        if (!path.isEmpty() && !path.getFirst().equals(initialBoard)) {
+            path.clear();
+        }
+        return path.isEmpty() ? null : path;
     }
 
     // solve a slider puzzle (given below)
