@@ -95,15 +95,12 @@ public class Board {
 
     private Board findTwin() {
         int[] newBlocks = blocks.clone();
-        int elem1 = StdRandom.uniform(newBlocks.length);
-        while (newBlocks[elem1] == 0) {
-            elem1 = StdRandom.uniform(newBlocks.length);
+        for (int i = 1; i < newBlocks.length; i++) {
+            if (newBlocks[i] != 0 && newBlocks[i - 1] != 0) {
+                exchangePosition(newBlocks, i - 1, i);
+                break;
+            }
         }
-        int elem2 = StdRandom.uniform(newBlocks.length);
-        while (elem1 == elem2 || newBlocks[elem2] == 0) {
-            elem2 = StdRandom.uniform(newBlocks.length);
-        }
-        exchangePosition(newBlocks, elem1, elem2);
         return new Board(newBlocks, dimension);
     }
 
