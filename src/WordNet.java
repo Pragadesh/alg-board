@@ -36,8 +36,6 @@ public class WordNet {
                 createSynsetEntry(line);
                 line = in.readLine();
             }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not process file" + synsets);
         } finally {
             if (in != null)
                 in.close();
@@ -57,8 +55,6 @@ public class WordNet {
                 createHypernymEntry(line);
                 line = in.readLine();
             }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not process file" + hypernyms);
         } finally {
             if (in != null)
                 in.close();
@@ -66,40 +62,32 @@ public class WordNet {
     }
 
     private void createSynsetEntry(String line) {
-        try {
-            String[] params = line.split(",");
-            Integer key = Integer.parseInt(params[0]);
-            String[] words = params[1].split(" ");
-            if (words == null || words.length == 0) {
-                throw new IllegalArgumentException("Invalid entry in synsets: " + line);
-            }
-            for (String word : words) {
-                Set<Integer> ids = wordIdMapper.get(word);
-                if (ids == null) {
-                    ids = new HashSet<>();
-                    wordIdMapper.put(word, ids);
-                }
-                ids.add(key);
-            }
-            idWordMapper.put(key, params[1]);
-            V = Math.max(V, key);
-        } catch (Exception e) {
+        String[] params = line.split(",");
+        Integer key = Integer.parseInt(params[0]);
+        String[] words = params[1].split(" ");
+        if (words == null || words.length == 0) {
             throw new IllegalArgumentException("Invalid entry in synsets: " + line);
         }
+        for (String word : words) {
+            Set<Integer> ids = wordIdMapper.get(word);
+            if (ids == null) {
+                ids = new HashSet<>();
+                wordIdMapper.put(word, ids);
+            }
+            ids.add(key);
+        }
+        idWordMapper.put(key, params[1]);
+        V = Math.max(V, key);
     }
 
     private void createHypernymEntry(String line) {
-        try {
-            String[] params = line.split(",");
-            if (params == null || params.length < 1) {
-                throw new IllegalArgumentException("Invalid entry in hypernym: " + line);
-            }
-            int start = Integer.parseInt(params[0]);
-            for (int i = 1; i < params.length; i++) {
-                digraph.addEdge(start, Integer.parseInt(params[i]));
-            }
-        } catch (Exception e) {
+        String[] params = line.split(",");
+        if (params == null || params.length < 1) {
             throw new IllegalArgumentException("Invalid entry in hypernym: " + line);
+        }
+        int start = Integer.parseInt(params[0]);
+        for (int i = 1; i < params.length; i++) {
+            digraph.addEdge(start, Integer.parseInt(params[i]));
         }
     }
 

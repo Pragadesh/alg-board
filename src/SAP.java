@@ -84,6 +84,9 @@ public class SAP {
                     break;
                 }
                 distance++;
+                if(this.length != -1 && distance > this.length) {
+                    break;
+                }
             }
             return this;
         }
@@ -93,9 +96,8 @@ public class SAP {
                 Integer vertex = queue.dequeue();
                 currentMarked[vertex] = true;
                 if (otherMarked[vertex]) {
-                    ancestor = vertex;
-                    calculateLength(vertex);
-                    return true;
+                    markAncestor(vertex);
+                    return (distance > this.length);
                 }
                 for (Integer adj : G.adj(vertex)) {
                     if (!currentMarked[adj]) {
@@ -107,8 +109,16 @@ public class SAP {
             return false;
         }
 
-        private void calculateLength(Integer vertex) {
-            this.length = forwardEdgeTo[vertex] + reverseEdgeTo[vertex];
+        private void markAncestor(int vertex) {
+            int currentLength = calculateLength(vertex);
+            if (this.length == -1 || this.length > currentLength) {
+                ancestor = vertex;
+                this.length = currentLength;
+            }
+        }
+
+        private int calculateLength(Integer vertex) {
+            return forwardEdgeTo[vertex] + reverseEdgeTo[vertex];
         }
 
         public BreadthFirstSearch search(Integer v, Integer w) {
@@ -124,7 +134,7 @@ public class SAP {
 
     // do unit testing of this class
     public static void main(String[] args) {
-        In in = new In(args[0]);
+        In in = new In("/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/digraph3.txt");
         Digraph G = new Digraph(in);
         SAP sap = new SAP(G);
         while (!StdIn.isEmpty()) {
