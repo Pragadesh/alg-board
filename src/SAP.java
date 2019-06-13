@@ -98,7 +98,7 @@ public class SAP {
                     return true;
                 }
                 for (Integer adj : G.adj(vertex)) {
-                    if (!currentMarked[vertex]) {
+                    if (!currentMarked[adj]) {
                         queue.enqueue(adj);
                         edgeTo[adj] = distance + 1;
                     }
