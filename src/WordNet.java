@@ -49,7 +49,7 @@ public class WordNet {
             throw new IllegalArgumentException("Empty hypernyms file name");
         }
         In in = null;
-        digraph = new Digraph(V+1);
+        digraph = new Digraph(V + 1);
         try {
             in = new In(hypernyms);
             String line = in.readLine();
@@ -75,7 +75,7 @@ public class WordNet {
             }
             for (String word : words) {
                 Set<Integer> ids = wordIdMapper.get(word);
-                if(ids == null) {
+                if (ids == null) {
                     ids = new HashSet<>();
                     wordIdMapper.put(word, ids);
                 }
