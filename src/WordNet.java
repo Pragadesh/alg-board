@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.DirectedCycle;
 import edu.princeton.cs.algs4.In;
 
 public class WordNet {
@@ -21,7 +22,28 @@ public class WordNet {
         V = 0;
         createSynsets(synsets);
         createHypernyms(hypernyms);
+        checkCyclic(digraph);
         sap = new SAP(digraph);
+    }
+
+    private void checkCyclic(Digraph digraph) {
+        DirectedCycle directedCycle = new DirectedCycle(digraph);
+        if (directedCycle.hasCycle()) {
+            throw new IllegalArgumentException("cyclic graph");
+        }
+        int numberOfZeroOut = 0;
+        for (int i = 0; i < digraph.V(); i++) {
+            int count = 0;
+            for (int v : digraph.adj(i)) {
+                count++;
+            }
+            if (count == 0) {
+                numberOfZeroOut++;
+            }
+        }
+        if (numberOfZeroOut != 1) {
+            throw new IllegalArgumentException("not rooted graph");
+        }
     }
 
     private void createSynsets(String synsets) {
@@ -98,6 +120,9 @@ public class WordNet {
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
+        if (word == null) {
+            throw new IllegalArgumentException("Empty word");
+        }
         return wordIdMapper.containsKey(word);
     }
 

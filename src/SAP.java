@@ -5,7 +5,6 @@ import java.util.List;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 
 public class SAP {
@@ -22,33 +21,55 @@ public class SAP {
 
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w) {
+        validateIndex(v);
+        validateIndex(w);
         return new BreadthFirstSearch().search(v, w).length;
     }
 
     // a common ancestor of v and w that participates in a shortest ancestral
     // path; -1 if no such path
     public int ancestor(int v, int w) {
+        validateIndex(v);
+        validateIndex(w);
         return new BreadthFirstSearch().search(v, w).ancestor;
     }
 
     // length of shortest ancestral path between any vertex in v and any vertex
     // in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
+        validateIndex(v);
+        validateIndex(w);
         return new BreadthFirstSearch().search(v, w).length;
     }
 
     // a common ancestor that participates in shortest ancestral path; -1 if no
     // such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
+        validateIndex(v);
+        validateIndex(w);
         return new BreadthFirstSearch().search(v, w).ancestor;
+    }
+    
+    private void validateIndex(int index) {
+        if(index < 0 || index >= G.V()) {
+            throw new IllegalArgumentException("Invalid index: "+index);
+        }
+    }
+    
+    private void validateIndex(Iterable<Integer> indexes) {
+        for(Integer v : indexes) {
+            if(v == null)
+                throw new IllegalArgumentException("Empty index.");
+            validateIndex(v);
+        }
     }
 
     private class BreadthFirstSearch {
 
         private boolean[] forwardMarked;
         private boolean[] reverseMarked;
-        private int[] forwardEdgeTo;
-        private int[] reverseEdgeTo;
+        private int[] forwardDistance;
+        private int[] reverseDistance;
 
         private Integer ancestor = -1;
         private Integer length = -1;
@@ -56,57 +77,57 @@ public class SAP {
         public BreadthFirstSearch() {
             forwardMarked = new boolean[G.V()];
             reverseMarked = new boolean[G.V()];
-            forwardEdgeTo = new int[G.V()];
-            reverseEdgeTo = new int[G.V()];
+            forwardDistance = new int[G.V()];
+            reverseDistance = new int[G.V()];
         }
 
-        private void initializeQueue(Iterable<Integer> v, Queue<Integer> queue, int[] edgeTo) {
+        private void initializeQueue(Iterable<Integer> v, Queue<Integer> queue, boolean[] marked, int[] distance) {
             for (Integer v1 : v) {
                 if (v1 >= G.V()) {
                     throw new IllegalArgumentException(String.format("Vertex %d larger than graph size %d", v1, G.V()));
                 }
                 queue.enqueue(v1);
-                edgeTo[v1] = 0;
+                distance[v1] = 0;
+                marked[v1] = true;
             }
         }
 
         public BreadthFirstSearch search(Iterable<Integer> v, Iterable<Integer> w) {
+            long start = System.currentTimeMillis();
             Queue<Integer> forwardQueue = new Queue<>();
             Queue<Integer> reverseQueue = new Queue<>();
-            initializeQueue(v, forwardQueue, forwardEdgeTo);
-            initializeQueue(w, reverseQueue, reverseEdgeTo);
+            initializeQueue(v, forwardQueue, forwardMarked, forwardDistance);
+            initializeQueue(w, reverseQueue, reverseMarked, reverseDistance);
             int distance = 0;
             while (!forwardQueue.isEmpty() || !reverseQueue.isEmpty()) {
-                if (findAncestor(forwardQueue, forwardMarked, reverseMarked, forwardEdgeTo, distance)) {
-                    break;
-                }
-                if (findAncestor(reverseQueue, reverseMarked, forwardMarked, reverseEdgeTo, distance)) {
-                    break;
-                }
+                findAncestor(forwardQueue, forwardMarked, reverseMarked, forwardDistance, distance);
+                findAncestor(reverseQueue, reverseMarked, forwardMarked, reverseDistance, distance);
                 distance++;
-                if(this.length != -1 && distance > this.length) {
+                if (this.length != -1 && distance >= this.length) {
                     break;
                 }
+            }
+            long timeTaken = (System.currentTimeMillis() - start);
+            if (timeTaken > 2000) {
+                System.out.println(String.format("Search completed in %d ms", timeTaken));
             }
             return this;
         }
 
-        private boolean findAncestor(Queue<Integer> queue, boolean[] currentMarked, boolean[] otherMarked, int[] edgeTo, int distance) {
-            while (!queue.isEmpty() && edgeTo[queue.peek()] == distance) {
+        private void findAncestor(Queue<Integer> queue, boolean[] currentMarked, boolean[] otherMarked, int[] distanceTo, int distance) {
+            while (!queue.isEmpty() && distanceTo[queue.peek()] == distance) {
                 Integer vertex = queue.dequeue();
-                currentMarked[vertex] = true;
                 if (otherMarked[vertex]) {
                     markAncestor(vertex);
-                    return (distance > this.length);
                 }
                 for (Integer adj : G.adj(vertex)) {
                     if (!currentMarked[adj]) {
+                        currentMarked[adj] = true;
+                        distanceTo[adj] = distanceTo[vertex] + 1;
                         queue.enqueue(adj);
-                        edgeTo[adj] = distance + 1;
                     }
                 }
             }
-            return false;
         }
 
         private void markAncestor(int vertex) {
@@ -118,7 +139,7 @@ public class SAP {
         }
 
         private int calculateLength(Integer vertex) {
-            return forwardEdgeTo[vertex] + reverseEdgeTo[vertex];
+            return forwardDistance[vertex] + reverseDistance[vertex];
         }
 
         public BreadthFirstSearch search(Integer v, Integer w) {
@@ -134,15 +155,25 @@ public class SAP {
 
     // do unit testing of this class
     public static void main(String[] args) {
-        In in = new In("/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/digraph3.txt");
+        In in = new In("/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/digraph1.txt");
         Digraph G = new Digraph(in);
         SAP sap = new SAP(G);
-        while (!StdIn.isEmpty()) {
-            int v = StdIn.readInt();
-            int w = StdIn.readInt();
-            int length = sap.length(v, w);
-            int ancestor = sap.ancestor(v, w);
-            StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
-        }
+        List<Integer> v = new ArrayList<>();
+        v.add(0);
+        v.add(7);
+        List<Integer> w = new ArrayList<>();
+        w.add(1);
+        w.add(null);
+        w.add(2);
+        int length = sap.length(v, w);
+        int ancestor = sap.ancestor(v, w);
+        StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
+        // while (!StdIn.isEmpty()) {
+        // int v = StdIn.readInt();
+        // int w = StdIn.readInt();
+        // int length = sap.length(v, w);
+        // int ancestor = sap.ancestor(v, w);
+        // StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
+        // }
     }
 }

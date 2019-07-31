@@ -31,7 +31,7 @@ public class Outcast {
 
     private int getOutcaseIndex(int[] distance) {
         int maxDistance = distance[0];
-        int maxDistanceIndex = 1;
+        int maxDistanceIndex = 0;
         for (int i = 1; i < distance.length; i++) {
             if (distance[i] >= maxDistance) {
                 maxDistance = distance[i];
@@ -46,9 +46,9 @@ public class Outcast {
         args = new String[] {
                 "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/synsets.txt", 
                 "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/hypernyms.txt", 
-                "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/outcast5.txt",
-                "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/outcast8.txt",
-                "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/outcast11.txt"
+                "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/outcast29.txt",
+//                "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/outcast8.txt",
+//                "/Users/pgopalakrishnan/work/learn/workspace/alg/digraph/outcast11.txt"
                 };
         WordNet wordnet = new WordNet(args[0], args[1]);
         Outcast outcast = new Outcast(wordnet);
