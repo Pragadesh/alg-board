@@ -74,6 +74,8 @@ public class BoggleSolver {
         if (word == null) {
             throw new IllegalArgumentException("Empty word");
         }
+        if (!dictTree.isValid(word))
+            return 0;
         int len = word.length();
         if(len <= 2) {
             return 0;
@@ -122,16 +124,20 @@ public class BoggleSolver {
             TrieNode qMatchNode = null;
             if(matchNode != null && c == 'Q') {
                 qMatchNode = dictTree.getNode(prefixWord + "U", prefix + 1, matchNode.mid);
+                addIfValid(qMatchNode);
+            }else {
+                addIfValid(matchNode);
             }
-            addIfValid(matchNode);
+            
             if(matchNode != null) {
                 for(int w : graph.adj(v)) {
                     if(!visited[w]) {
                         visited[w] = true;
                         if(qMatchNode != null) {
                             _findWords(w, qMatchNode.mid, prefixWord + "U", prefix + 2);
+                        }else {
+                            _findWords(w, matchNode.mid, prefixWord, prefix + 1);
                         }
-                        _findWords(w, matchNode.mid, prefixWord, prefix + 1);
                         visited[w] = false;
                     }
                 }
@@ -152,7 +158,7 @@ public class BoggleSolver {
         String boggle1 = "/Users/pgopalakrishnan/work/learn/alg/boggle/board4x4.txt";
         String boggle2 = "/Users/pgopalakrishnan/work/learn/alg/boggle/board-q.txt";
         String boggle3 = "/Users/pgopalakrishnan/work/learn/alg/boggle/board-qwerty.txt";
-        In in = new In(dict2);
+        In in = new In(dict1);
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
         BoggleBoard board = new BoggleBoard(boggle3);
