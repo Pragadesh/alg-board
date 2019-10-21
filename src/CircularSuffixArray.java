@@ -14,7 +14,9 @@ public class CircularSuffixArray {
             throw new IllegalArgumentException("Invalid input: " + s);
         }
         this.s = s;
-        sortSuffixes(s);
+        if(!s.isEmpty()) {
+            sortSuffixes(s);
+        }
     }
 
     private void sortSuffixes(String s) {
@@ -38,15 +40,20 @@ public class CircularSuffixArray {
 
     // returns index of ith sorted suffix
     public int index(int i) {
-        if (i < 0 || i >= index.length) {
-            throw new IllegalArgumentException(String.format("Index %d is outside boundary (0, %d)", i, index.length));
+        if (i < 0 || index == null || i >= index.length) {
+            throw new IllegalArgumentException(String.format("Index %d is outside boundary (0, %d)", i, index == null? 0 : index.length));
         }
         return index[i];
     }
 
     // unit testing (required)
     public static void main(String[] args) {
-        String message = "ABRACADABRA!";
+        testSorting();
+    }
+
+    private static void testSorting() {
+//        String message = "ABRACADABRA!";
+        String message = "";
         CircularSuffixArray circularSuffixArray = new CircularSuffixArray(message);
         for (int i = 0; i < message.length(); i++) {
             System.out.println(circularSuffixArray.index(i));

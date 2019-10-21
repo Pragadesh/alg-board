@@ -23,11 +23,11 @@ public class MoveToFront {
         BinaryStdOut.close();
     }
 
-    private static List<Short> encode(String message, String encodePattern) {
-        EncodeSequence encodeSequence = new EncodeSequence(encodePattern);
-        List<Short> out = new ArrayList<>();
+    private static List<Character> encode(String message) {
+        EncodeSequence encodeSequence = new EncodeSequence();
+        List<Character> out = new ArrayList<>();
         for (int i = 0; i < message.length(); i++) {
-            short pos = encodeSequence.getIndex(message.charAt(i));
+            char pos = encodeSequence.getIndex(message.charAt(i));
             out.add(pos);
         }
         System.out.println("Encoded Result: " + out);
@@ -38,42 +38,41 @@ public class MoveToFront {
     // standard output
     public static void decode() {
         DecodeSequence decodeSequence = new DecodeSequence();
-        int i;
+        char i;
         while (!BinaryStdIn.isEmpty()) {
-            i = BinaryStdIn.readInt();
+            i = BinaryStdIn.readChar();
             BinaryStdOut.write(decodeSequence.getCharacter(i));
         }
         BinaryStdOut.close();
     }
 
-    private static String decode(List<Short> encodedData, String encodePattern) {
-        StringBuilder builder = new StringBuilder();
-        DecodeSequence decodeSequence = new DecodeSequence(encodePattern);
-        for (int i = 0; i < encodedData.size(); i++) {
-            builder.append(decodeSequence.getCharacter(encodedData.get(i)));
+    private static String decode(String message) {
+        StringBuilder encodeBuilder = new StringBuilder();
+        DecodeSequence decodeSequence = new DecodeSequence();
+        for (int i = 0; i < message.length(); i++) {
+            encodeBuilder.append(decodeSequence.getCharacter(message.charAt(i)));
         }
-        System.out.println("Decoded Result :" + builder.toString());
-        return builder.toString();
+        System.out.println("Decoded Result :" + encodeBuilder.toString());
+        return encodeBuilder.toString();
     }
 
     // if args[0] is "-", apply move-to-front encoding
     // if args[0] is "+", apply move-to-front decoding
     public static void main(String[] args) {
-        testEncodeDecode("CAAABCCCACCF");
+//        testEncodeDecode("zebra");
         if (args == null || args.length < 1) {
             throw new IllegalArgumentException("Invalid arguments: " + args);
         }
-        if ("+".equals(args[0])) {
+        if ("-".equals(args[0])) {
             encode();
-        } else if ("-".equals(args[0])) {
+        } else if ("+".equals(args[0])) {
             decode();
         }
     }
 
     private static void testEncodeDecode(String message) {
-        String encodePattern = "ABCDEF";
-        List<Short> encodedData = encode(message, encodePattern);
-        String result = decode(encodedData, encodePattern);
+//        List<Character> encodedData = encode(message);
+        String result = decode(message);
     }
 
     private static class DecodeSequence {
@@ -81,22 +80,15 @@ public class MoveToFront {
 
         public DecodeSequence() {
             charPos = new char[R];
-            for (int i = 0; i < R; i++) {
-                charPos[i] = (char) i;
+            for (char i = 0; i < R; i++) {
+                charPos[i] = i;
             }
         }
 
-        public DecodeSequence(String sequence) {
-            charPos = new char[sequence.length()];
-            for (int i = 0; i < sequence.length(); i++) {
-                charPos[i] = sequence.charAt(i);
-            }
-        }
-
-        public char getCharacter(int pos) {
+        public char getCharacter(char pos) {
             char c = charPos[pos];
             while (pos > 0) {
-                exchange(pos, --pos);
+                charPos[pos] = charPos[--pos];
             }
             charPos[0] = c;
             return c;
@@ -114,21 +106,10 @@ public class MoveToFront {
         private DNode[] charNodeMap;
         private DNodeList nodeList;
 
-        public EncodeSequence(String sequence) {
-            init();
-            char[] characterSet = sequence.toCharArray();
-            for (int i = 0; i < characterSet.length; i++) {
-                DNode n = new DNode(characterSet[i], i);
-                nodeList.addLast(n);
-                charNodeMap[(int) characterSet[i]] = n;
-            }
-        }
-
         public EncodeSequence() {
             init();
-            for (int i = 0; i < R; i++) {
-                char c = (char) i;
-                DNode n = new DNode(c, i);
+            for (char i = 0; i < R; i++) {
+                DNode n = new DNode(i, i);
                 nodeList.addLast(n);
                 charNodeMap[i] = n;
             }
@@ -140,19 +121,19 @@ public class MoveToFront {
         }
 
         private DNode getNode(char c) {
-            return charNodeMap[(int) c];
+            return charNodeMap[c];
         }
 
-        public short getIndex(char c) {
+        public char getIndex(char c) {
             DNode n = getNode(c);
             if (n == null) {
                 throw new IllegalArgumentException("Missing character: " + c);
             }
-            int index = n.index;
+            char index = n.index;
             if (index > 0) {
                 nodeList.moveToFirst(n);
             }
-            return (short) index;
+            return index;
         }
     }
 
@@ -161,7 +142,7 @@ public class MoveToFront {
         private int size;
 
         public DNodeList() {
-            head = new DNode((char) 0, -1);
+            head = new DNode((char) 0, (char) 0);
             head.next = head;
             head.prev = head;
         }
@@ -212,11 +193,11 @@ public class MoveToFront {
 
     private static class DNode {
         private char c;
-        private int index;
+        private char index;
         private DNode prev;
         private DNode next;
 
-        public DNode(char c, int index) {
+        public DNode(char c, char index) {
             this.c = c;
             this.index = index;
         }

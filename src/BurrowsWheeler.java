@@ -19,7 +19,7 @@ public class BurrowsWheeler {
         while (!BinaryStdIn.isEmpty()) {
             builder.append(BinaryStdIn.readChar());
         }
-        BinaryStdOut.write(_transform(builder.toString()));
+        _transform(builder.toString());
         BinaryStdOut.close();
     }
 
@@ -35,6 +35,8 @@ public class BurrowsWheeler {
             }
             builder.append(message.charAt((length - 1 + origIndex) % length));
         }
+        BinaryStdOut.write(first);
+        BinaryStdOut.write(builder.toString());
         return first + builder.toString();
     }
 
@@ -84,7 +86,19 @@ public class BurrowsWheeler {
     // if args[0] is "-", apply Burrows-Wheeler transform
     // if args[0] is "+", apply Burrows-Wheeler inverse transform
     public static void main(String[] args) {
-        String msg = "ABRACADABRA!";
+//        testTransformation();
+        if (args == null || args.length < 1) {
+            throw new IllegalArgumentException("Invalid arguments: " + args);
+        }
+        if ("-".equals(args[0])) {
+            transform();
+        } else if ("+".equals(args[0])) {
+            inverseTransform();
+        }
+    }
+
+    private static void testTransformation() {
+        String msg = "CADABRA!ABRA";
         String response = _transform(msg);
         System.out.println("Transformed: " + response);
         String orig = new String (_inverseTransform(response.substring(1), Integer.parseInt("" + response.charAt(0))));
